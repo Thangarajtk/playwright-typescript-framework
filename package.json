@@ -1,0 +1,20 @@
+{
+  "name": "playwright-typescript-framework",
+  "version": "1.0.0",
+  "description": "Playwright framework for web application automation using typescript",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test-headed": "npx playwright test --headed",
+    "test-ui": "npx playwright test --ui",
+    "show-report": "npx playwright show-report"
+
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.42.1",
+    "@types/node": "^20.11.20"
+  }
+}

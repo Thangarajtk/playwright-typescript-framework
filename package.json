@@ -7,14 +7,16 @@
     "test": "npx playwright test",
     "test-headed": "npx playwright test --headed",
     "test-ui": "npx playwright test --ui",
-    "show-report": "npx playwright show-report"
-
+    "testOnWebkit" :"npx playwright test --project webkit",
+    "show-report": "npx playwright show-report",
+    "testWithTraceViewer": "npx playwright test --trace on",
+    "debugtest": "npx playwright test --debug"
   },
   "keywords": [],
-  "author": "",
+  "author": "Thangaraj",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.42.1",
+    "@playwright/test": "^1.49.0",
     "@types/node": "^20.11.20"
   }
 }

@@ -7,16 +7,25 @@
     "test": "npx playwright test",
     "test-headed": "npx playwright test --headed",
     "test-ui": "npx playwright test --ui",
-    "testOnWebkit" :"npx playwright test --project webkit",
+    "testOnWebkit": "npx playwright test --project webkit",
     "show-report": "npx playwright show-report",
     "testWithTraceViewer": "npx playwright test --trace on",
-    "debugtest": "npx playwright test --debug"
+    "debugtest": "npx playwright test --debug",
+    "test-mobile": "npx playwright test -c playwright.mobile.config.ts",
+    "allure:generate": "allure generate ./allure-results --clean -o ./allure-report",
+    "allure:open": "allure open ./allure-report",
+    "test-web-tags": "npx playwright test --headed --grep @web",
+    "testWithAllureReport": "npx playwright test --headed --grep @web --reporter=line,allure-playwright",
+    "generatereport": "allure generate --single-file ./allure-results -o ./allure-report --clean && allure open ./allure-report"
   },
   "keywords": [],
   "author": "Thangaraj",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.49.0",
-    "@types/node": "^20.11.20"
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^24.10.1",
+    "allure-playwright": "^3.4.2",
+    "exceljs": "^4.4.0",
+    "allure-commandline": "^2.13.9"
   }
 }

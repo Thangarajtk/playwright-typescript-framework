@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
 
+// Run tests from the same file in parallel mode
+test.describe.configure({ mode: 'parallel' });
+
+// Run tests in serial mode (interdependent tests)
+// test.describe.configure({ mode: 'serial' });
+
 test('has title', async ({ page }) => {
   await page.goto('https://playwright.dev/');
 

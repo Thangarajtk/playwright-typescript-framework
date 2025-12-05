@@ -1,37 +1,64 @@
 import { test, expect } from '@playwright/test';
+import { PageObjectsFactory } from '../pages/PageObjectsFactory';
 
-test('place an order successfully', async ({ page }) => {
-  // Navigate to the e-commerce homepage
-  await page.goto('https://www.saucedemo.com/');
+const dataset = JSON.parse(
+  JSON.stringify(require('../test-data/login-data.json'))
+);
 
-  // Log in with valid credentials
-    await page.fill('#user-name', 'standard_user');
-    await page.fill('#password', 'secret_sauce');
-    await page.click('#login-button');
+test('@web place an order successfully', async ({ page }) => {
+  // Initialize factory and create page objects
+  const factory = new PageObjectsFactory(page);
+  const {
+    loginPage,
+    productsPage,
+    cartPage,
+    checkoutPage,
+    checkoutOverviewPage,
+    orderConfirmationPage,
+  } = factory.createAllPages();
 
-    // Verify successful login by checking the presence of the products page
-    await expect(page.locator('.inventory_list')).toBeVisible();
+  // Login to SauceDemo
+  await loginPage.login(dataset.username, dataset.password, '.inventory_list');
 
-    // Add a product to the cart
-    await page.locator('.inventory_item_description').filter({ hasText: 'Sauce Labs Fleece Jacket' })
-    .getByRole('button', { name: 'Add to cart' }).click();
-    
-    // Go to the cart
-    await page.click('.shopping_cart_link');
-    await expect(page.locator('.cart_list')).toBeVisible();
+  // Verify we're on the products page
+  await expect(page).toHaveURL(/.*inventory/);
+  expect(await productsPage.isInventoryListVisible()).toBe(true);
 
-    // Proceed to checkout
-    await page.click('text=Checkout');
-    
-    // Fill in checkout information
-    await page.fill('#first-name', 'John');
-    await page.fill('#last-name', 'Doe');
-    await page.fill('#postal-code', '12345');
-    await page.click('#continue');
+  // Add a product to the cart
+  await productsPage.addProductToCart(dataset.productName);
 
-    // Finish the order
-    await page.click('#finish');
+  // Navigate to cart
+  await productsPage.goToCart();
+  expect(await cartPage.isCartVisible()).toBe(true);
 
-    // Verify order completion
-    await expect(page.locator('.complete-header')).toHaveText('Thank you for your order!');
+  // Verify product is in cart
+  const itemCount = await cartPage.getItemCount();
+  expect(itemCount).toBeGreaterThan(0);
+
+  // Proceed to checkout
+  await cartPage.proceedToCheckout();
+  expect(await checkoutPage.isCheckoutFormVisible()).toBe(true);
+
+  // Fill checkout information
+  await checkoutPage.fillCheckoutInfo('John', 'Doe', '12345');
+
+  // Verify information was filled
+  expect(await checkoutPage.getFirstName()).toBe('John');
+  expect(await checkoutPage.getLastName()).toBe('Doe');
+  expect(await checkoutPage.getPostalCode()).toBe('12345');
+
+  // Continue to order review
+  await checkoutPage.continue();
+  expect(await checkoutOverviewPage.isOverviewDisplayed()).toBe(true);
+
+  // Verify order overview
+  const overviewItemCount = await checkoutOverviewPage.getItemCount();
+  expect(overviewItemCount).toBeGreaterThan(0);
+
+  // Finish the order
+  await checkoutOverviewPage.finishOrder();
+
+  // Verify order completion
+  expect(await orderConfirmationPage.isConfirmationPageDisplayed()).toBe(true);
+  expect(await orderConfirmationPage.hasSuccessMessage('Thank you for your order')).toBe(true);
 });

@@ -1,16 +1,11 @@
-import { test, request } from '@playwright/test';
-import { ApiUtils } from '../utils/ApiUtils';
-const loginPayLoad = { userEmail: "anshika@gmail.com", userPassword: "Iamking@000" };
+import { test } from '../fixtures';
 const orderPayLoad = { orders: [{ country: "India", productOrderedId: "68a961459320a140fe1ca57a" }] };
 const fakePayLoadOrders = { data: [], message: "No Orders" };
- 
+
 let response: { token: any; orderId?: string; };
 
-test.beforeAll(async () => {
-  const apiContext = await request.newContext();
-  const apiUtils = new ApiUtils(apiContext, loginPayLoad);
+test.beforeAll(async ({ apiUtils }) => {
   response = await apiUtils.createOrder(orderPayLoad);
- 
 })
 
 //create order is success

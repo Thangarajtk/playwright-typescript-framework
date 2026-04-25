@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect } from '../fixtures';
 
 const orderPayload = { orders: [{ country: 'Cuba', productOrderedId: '68a961459320a140fe1ca57a' }] };
 

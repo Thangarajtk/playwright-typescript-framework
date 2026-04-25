@@ -1,13 +1,6 @@
-import { test, expect } from '@playwright/test';
-import { PageObjectsFactory } from '../pages/PageObjectsFactory';
+import { test, expect } from '../fixtures';
 
-const dataset = JSON.parse(
-  JSON.stringify(require('../test-data/login-data.json'))
-);
-
-test('@web place an order successfully', async ({ page }) => {
-  // Initialize factory and create page objects
-  const factory = new PageObjectsFactory(page);
+test('@web place an order successfully', async ({ page, pageObjects, testData }) => {
   const {
     loginPage,
     productsPage,
@@ -15,17 +8,17 @@ test('@web place an order successfully', async ({ page }) => {
     checkoutPage,
     checkoutOverviewPage,
     orderConfirmationPage,
-  } = factory.createAllPages();
+  } = pageObjects;
 
   // Login to SauceDemo
-  await loginPage.login(dataset.username, dataset.password, '.inventory_list');
+  await loginPage.login(testData.username, testData.password, '.inventory_list');
 
   // Verify we're on the products page
   await expect(page).toHaveURL(/.*inventory/);
   expect(await productsPage.isInventoryListVisible()).toBe(true);
 
   // Add a product to the cart
-  await productsPage.addProductToCart(dataset.productName);
+  await productsPage.addProductToCart(testData.productName);
 
   // Navigate to cart
   await productsPage.goToCart();

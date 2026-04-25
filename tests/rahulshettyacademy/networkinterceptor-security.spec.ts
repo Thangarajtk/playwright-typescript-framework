@@ -1,9 +1,9 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
+import { test, expect } from '../fixtures';
 
-test('Security test request intercept', async ({ page }) => {
+test('Security test request intercept', async ({ page, rahulPageObjects }) => {
+    const { loginPage } = rahulPageObjects;
+
     // Use LoginPage helper to perform login
-    const loginPage = new LoginPage(page, 'rahulshettyacademy');
     await loginPage.login('anshika@gmail.com', 'Iamking@000', '.card-body b');
 
    // Intercept the order details request to simulate unauthorized access

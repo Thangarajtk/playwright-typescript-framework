@@ -22,10 +22,11 @@
   "author": "Thangaraj",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
-    "@types/node": "^24.10.1",
-    "allure-playwright": "^3.4.2",
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0",
+    "allure-commandline": "^2.38.1",
+    "allure-playwright": "^3.7.0",
     "exceljs": "^4.4.0",
-    "allure-commandline": "^2.13.9"
+    "npm-check-updates": "^20.0.0"
   }
 }

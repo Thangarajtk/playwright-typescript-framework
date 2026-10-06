@@ -209,14 +209,14 @@ npm run testWithTraceViewer
 
 ## 🧠 Best Practices
 
-1. **Page Object Model**: Keep page interactions in dedicated classes
-2. **Test Data**: Store test data in JSON files, not hard-coded
-3. **Fixtures**: Use custom fixtures for reusable test setup
-4. **Tags**: Organize tests with tags (e.g., `@web`, `@api`, `@regression`)
-5. **Assertions**: Use explicit waits and assertions
-6. **DRY Principle**: Avoid code duplication; extract common patterns
-7. **Error Handling**: Add proper error messages in assertions
-8. **Parallel Safety**: Ensure tests don't have side effects
+1. **Page Object Model**: Keep page interactions in dedicated classes and expose behavior-focused methods.
+2. **Test Data**: Store shared test data in JSON files, not hard-coded literals inside tests.
+3. **Fixtures**: Use custom fixtures for reusable setup, authentication state, and shared utilities.
+4. **Selectors**: Prefer semantic, user-facing selectors and avoid brittle CSS-only locators when possible.
+5. **Assertions**: Use Playwright web-first assertions and explicit waits for dynamic UI states.
+6. **DRY Principle**: Avoid code duplication; extract common flows into reusable helpers.
+7. **Error Handling**: Fail with clear messages when API or UI preconditions are not met.
+8. **Parallel Safety**: Keep tests isolated and avoid shared state between browser contexts.
 
 ## 🔧 Advanced Configuration
 
@@ -249,17 +249,13 @@ Edit `playwright.config.ts` to:
 ```typescript
 import { test, expect } from './fixtures';
 
-test('should complete workflow', async ({ page, pageObjects }) => {
+test('should complete workflow', async ({ page, pageObjects, testData }) => {
   const { loginPage, productsPage } = pageObjects;
-  
-  // Arrange
-  await page.goto('https://example.com');
-  
-  // Act
-  await loginPage.login('user', 'password');
-  
-  // Assert
-  await expect(productsPage.productList).toBeVisible();
+
+  await loginPage.login(testData.username ?? 'user', testData.password ?? 'password');
+
+  await expect(page).toHaveURL(/inventory/);
+  await expect(productsPage.getProductItems()).toHaveCountGreaterThan(0);
 });
 ```
 

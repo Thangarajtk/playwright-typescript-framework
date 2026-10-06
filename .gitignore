@@ -6,4 +6,4 @@ node_modules/
 /allure-results/
 /allure-report/
 .vscode/
-.github/agents/
+.github/

@@ -1,87 +1,80 @@
-import { test as baseTest, Browser } from '@playwright/test';
+import { test as baseTest, type Browser, type Page } from '@playwright/test';
+import type { LoginPage } from '../pages/LoginPage';
+import type { ProductsPage } from '../pages/ProductsPage';
+import type { CartPage } from '../pages/CartPage';
+import type { CheckoutPage } from '../pages/CheckoutPage';
+import type { CheckoutOverviewPage } from '../pages/CheckoutOverviewPage';
+import type { OrderConfirmationPage } from '../pages/OrderConfirmationPage';
 import { PageObjectsFactory } from '../pages/PageObjectsFactory';
 import { ApiUtils } from '../utils/ApiUtils';
-import path from 'path';
-import fs from 'fs';
+import fs from 'node:fs';
+import path from 'node:path';
 
-// Define the fixtures interface
+type AppName = 'saucedemo' | 'rahulshettyacademy';
+
+type PageObjects = {
+  loginPage: LoginPage;
+  productsPage: ProductsPage;
+  cartPage: CartPage;
+  checkoutPage: CheckoutPage;
+  checkoutOverviewPage: CheckoutOverviewPage;
+  orderConfirmationPage: OrderConfirmationPage;
+};
+
+type TestData = {
+  username?: string;
+  password?: string;
+  productName?: string;
+};
+
 type TestFixtures = {
-  pageObjects: ReturnType<PageObjectsFactory['createAllPages']>;
-  rahulPageObjects: {
-    loginPage: any;
-    productsPage: any;
-    cartPage: any;
-    checkoutPage: any;
-    checkoutOverviewPage: any;
-    orderConfirmationPage: any;
-  };
+  pageObjects: PageObjects;
+  rahulPageObjects: PageObjects;
   apiUtils: ApiUtils;
-  testData: any;
-  authenticatedPage: any;
+  testData: TestData;
+  authenticatedPage: Page;
 };
 
-// Load test data
-const loadTestData = (fileName: string) => {
-  const filePath = path.join(__dirname, '../test-data', fileName);
-  if (fs.existsSync(filePath)) {
-    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+const loadTestData = (fileName: string): TestData => {
+  const filePath = path.resolve(__dirname, '../test-data', fileName);
+  if (!fs.existsSync(filePath)) {
+    return {};
   }
-  return {};
+
+  return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as TestData;
 };
 
-// Extend the base test with custom fixtures
 export const test = baseTest.extend<TestFixtures>({
-  // Page Objects Factory fixture for SauceDemo
   pageObjects: async ({ page }, use) => {
     const factory = new PageObjectsFactory(page);
-    // Create page objects for SauceDemo by default (most tests use this)
-    const pageObjects = {
-      loginPage: factory.createLoginPage('saucedemo'),
-      productsPage: factory.createProductsPage(),
-      cartPage: factory.createCartPage(),
-      checkoutPage: factory.createCheckoutPage(),
-      checkoutOverviewPage: factory.createCheckoutOverviewPage(),
-      orderConfirmationPage: factory.createOrderConfirmationPage(),
-    };
-    await use(pageObjects);
+    await use(factory.createAllPages('saucedemo'));
   },
 
-  // Page Objects Factory fixture for Rahul Shetty Academy
   rahulPageObjects: async ({ page }, use) => {
     const factory = new PageObjectsFactory(page);
-    const pageObjects = {
-      loginPage: factory.createLoginPage('rahulshettyacademy'),
-      productsPage: factory.createProductsPage(),
-      cartPage: factory.createCartPage(),
-      checkoutPage: factory.createCheckoutPage(),
-      checkoutOverviewPage: factory.createCheckoutOverviewPage(),
-      orderConfirmationPage: factory.createOrderConfirmationPage(),
-    };
-    await use(pageObjects);
+    await use(factory.createAllPages('rahulshettyacademy'));
   },
 
-  // API Utils fixture
   apiUtils: async ({ request }, use) => {
-    const loginPayload = { userEmail: 'anshika@gmail.com', userPassword: 'Iamking@000' };
-    const apiUtils = new ApiUtils(request, loginPayload);
-    await use(apiUtils);
+    const loginPayload = {
+      userEmail: process.env.RAHUL_USER_EMAIL ?? 'anshika@gmail.com',
+      userPassword: process.env.RAHUL_USER_PASSWORD ?? 'Iamking@000',
+    };
+    await use(new ApiUtils(request, loginPayload));
   },
 
-  // Test Data fixture
-  testData: async ({}, use: any) => {
-    const data = loadTestData('login-data.json');
-    await use(data);
+  testData: async ({}, use) => {
+    await use(loadTestData('login-data.json'));
   },
 
-  // Authenticated Page fixture
-  authenticatedPage: async ({ browser }: { browser: Browser }, use: any) => {
-    // Create a new context with stored session state
-    const context = await browser.newContext({ storageState: 'sessionstate.json' });
+  authenticatedPage: async ({ browser }: { browser: Browser }, use) => {
+    const storageStatePath = path.resolve(process.cwd(), 'sessionstate.json');
+    const context = await browser.newContext({
+      storageState: fs.existsSync(storageStatePath) ? storageStatePath : undefined,
+    });
     const page = await context.newPage();
 
     await use(page);
-
-    // Cleanup
     await context.close();
   },
 });
